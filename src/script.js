@@ -2,6 +2,9 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import GUI from "lil-gui";
 
+import { FontLoader } from "three/examples/jsm/loaders/FontLoader";
+import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry.js";
+
 /**
  * Base
  */
@@ -15,7 +18,7 @@ const canvas = document.querySelector("canvas.webgl");
 const scene = new THREE.Scene();
 
 //Fog
-const fog = new THREE.Fog("#27446e", 1, 15);
+const fog = new THREE.Fog("#132641", 1, 16);
 scene.fog = fog;
 
 /**
@@ -32,6 +35,63 @@ const doorMetalnessTexture = textureLoader.load("/textures/door/metalness.jpg");
 const doorRoughnessTexture = textureLoader.load("/textures/door/roughness.jpg");
 const doorNormalTexture = textureLoader.load("/textures/door/normal.jpg");
 
+const sandstoneColorTexture = textureLoader.load("/textures/sandstone/color.jpg");
+sandstoneColorTexture.colorSpace = THREE.SRGBColorSpace;
+const sandstoneAmbientOcclusionTexture = textureLoader.load("/textures/sandstone/ambientOcclusion.jpg");
+const sandstoneRoughnessTexture = textureLoader.load("/textures/sandstone/roughness.jpg");
+const sandstoneNormalTexture = textureLoader.load("/textures/sandstone/normal.jpg");
+
+sandstoneColorTexture.repeat.set(2, 1.2);
+sandstoneAmbientOcclusionTexture.repeat.set(2, 1.2);
+sandstoneNormalTexture.repeat.set(2, 1.2);
+sandstoneRoughnessTexture.repeat.set(2, 1.2);
+
+sandstoneColorTexture.wrapS = THREE.RepeatWrapping;
+sandstoneColorTexture.wrapT = THREE.RepeatWrapping;
+sandstoneNormalTexture.wrapS = THREE.RepeatWrapping;
+sandstoneNormalTexture.wrapT = THREE.RepeatWrapping;
+sandstoneRoughnessTexture.wrapS = THREE.RepeatWrapping;
+sandstoneRoughnessTexture.wrapT = THREE.RepeatWrapping;
+sandstoneAmbientOcclusionTexture.wrapS = THREE.RepeatWrapping;
+sandstoneAmbientOcclusionTexture.wrapT = THREE.RepeatWrapping;
+
+const grassColorTexture = textureLoader.load("/textures/grass2/color.jpg");
+grassColorTexture.colorSpace = THREE.SRGBColorSpace;
+const grassAmbientOcclusionTexture = textureLoader.load("/textures/grass2/ambientOcclusion.jpg");
+const grassRoughnessTexture = textureLoader.load("/textures/grass2/roughness.jpg");
+const grassNormalTexture = textureLoader.load("/textures/grass2/normal.jpg");
+
+grassColorTexture.repeat.set(12, 12);
+grassAmbientOcclusionTexture.repeat.set(12, 12);
+grassNormalTexture.repeat.set(12, 12);
+grassRoughnessTexture.repeat.set(12, 12);
+
+grassColorTexture.wrapS = THREE.RepeatWrapping;
+grassColorTexture.wrapT = THREE.RepeatWrapping;
+grassNormalTexture.wrapS = THREE.RepeatWrapping;
+grassNormalTexture.wrapT = THREE.RepeatWrapping;
+grassRoughnessTexture.wrapS = THREE.RepeatWrapping;
+grassRoughnessTexture.wrapT = THREE.RepeatWrapping;
+grassAmbientOcclusionTexture.wrapS = THREE.RepeatWrapping;
+grassAmbientOcclusionTexture.wrapT = THREE.RepeatWrapping;
+
+const graveColorTexture = textureLoader.load("/textures/grave/color.jpg");
+graveColorTexture.colorSpace = THREE.SRGBColorSpace;
+const graveAmbientOcclusionTexture = textureLoader.load("/textures/grave/ambientOcclusion.jpg");
+const graveRoughnessTexture = textureLoader.load("/textures/grave/roughness.jpg");
+const graveNormalTexture = textureLoader.load("/textures/grave/normal.jpg");
+
+const windowColorTexture = textureLoader.load("/textures/window/color.jpg");
+windowColorTexture.colorSpace = THREE.SRGBColorSpace;
+const windowAlphaTexture = textureLoader.load("/textures/window/alpha.jpg");
+const windowAmbientOcclusionTexture = textureLoader.load("/textures/window/ambientOcclusion.jpg");
+const windowHeightTexture = textureLoader.load("/textures/window/height.jpg");
+const windowMetalnessTexture = textureLoader.load("/textures/window/metalness.jpg");
+const windowRoughnessTexture = textureLoader.load("/textures/window/roughness.jpg");
+const windowNormalTexture = textureLoader.load("/textures/window/normal.jpg");
+const windowBackground = textureLoader.load("/textures/window/windowBg.jpg");
+
+
 /**
  * House
  */
@@ -47,7 +107,10 @@ const houseSize = {
 const walls = new THREE.Mesh(
     new THREE.BoxGeometry(houseSize.width, houseSize.height, houseSize.depth),
     new THREE.MeshStandardMaterial({
-        color: "#ad8f68",
+        map: sandstoneColorTexture,
+        aoMap: sandstoneAmbientOcclusionTexture,
+        normalMap: sandstoneNormalTexture,
+        roughnessMap: sandstoneRoughnessTexture,
     })
 );
 walls.position.set(0, houseSize.height / 2, 0);
@@ -80,9 +143,43 @@ const door = new THREE.Mesh(
     })
 );
 
-door.geometry.setAttribute("uv2", new THREE.Float32BufferAttribute(door.geometry.attributes.uv.array, 2));
-door.position.set(0, 1.5 / 2, houseSize.depth / 2 + 0.01);
+door.position.set(0, 1.5 / 2, houseSize.depth / 2);
 house.add(door);
+
+//Window
+const wallWindow = new THREE.Mesh(
+    new THREE.PlaneGeometry(2, 2, 100, 100),
+    new THREE.MeshStandardMaterial({
+        map: windowColorTexture,
+        transparent: true,
+        alphaMap: windowAlphaTexture,
+        aoMap: windowAmbientOcclusionTexture,
+        displacementMap: windowHeightTexture,
+        displacementScale: 0.1,
+        normalMap: windowNormalTexture,
+        metalnessMap: windowMetalnessTexture,
+        roughnessMap: windowRoughnessTexture,
+    })
+);
+
+const windowBg = new THREE.Mesh(
+    new THREE.PlaneGeometry(1.8, 1.2),
+    new THREE.MeshStandardMaterial({
+        map: windowBackground,
+        transparent: true,
+    })
+);
+
+windowBg.position.z = 0.01;
+wallWindow.position.z = 0.02;
+const windowGroup = new THREE.Group();
+scene.add(windowGroup);
+
+windowGroup.add(wallWindow, windowBg);
+
+windowGroup.position.set(houseSize.width / 2 + 0.01, 1, houseSize.depth / 2 - 2);
+windowGroup.rotation.y = Math.PI * 0.5;
+windowGroup.scale.set(0.5, 0.5, 0.5);
 
 //Bushes
 const bushes = new THREE.Group();
@@ -114,30 +211,99 @@ bush5.scale.set(0.35, 0.35, 0.35);
 bushes.add(bush1, bush2, bush3, bush4, bush5);
 
 //Graves
-const graveMatearial = new THREE.MeshStandardMaterial({ color: "#939492" });
+const graveMatearial = new THREE.MeshStandardMaterial({
+    map: graveColorTexture,
+    aoMap: graveAmbientOcclusionTexture,
+    roughnessMap: graveRoughnessTexture,
+    normalMap: graveNormalTexture,
+});
 const graveGeometry = new THREE.BoxGeometry(0.5, 0.8, 0.1);
 
-for (let i = 0; i < 60; i++) {
-    let grave = new THREE.Mesh(graveGeometry, graveMatearial);
+const fontLoader = new FontLoader();
+fontLoader.load("/fonts/jetbrains_mono_bold.typeface.json", (font) => {
+    for (let i = 0; i < 60; i++) {
+        let grave = new THREE.Mesh(graveGeometry, graveMatearial);
+
+        let angle = Math.random() * 2 * Math.PI;
+        const radius = 3 + Math.random() * 6;
+        let x = Math.sin(angle) * radius;
+        let z = Math.cos(angle) * radius;
+
+        grave.position.set(x, 0.3, z);
+
+        grave.castShadow = true;
+
+        const graveGroup = new THREE.Group();
+
+        graveGroup.add(grave);
+
+        const textGeometry = new TextGeometry(`unknown №${i}`, {
+            font,
+            size: 0.05,
+            height: 0.01,
+        });
+        textGeometry.computeBoundingBox();
+        textGeometry.center();
+
+        const text = new THREE.Mesh(textGeometry, new THREE.MeshStandardMaterial({ color: "#ffffff" }));
+        graveGroup.add(text);
+        text.position.set(x, 0.5, z + 0.05);
+
+        const rotationAngle = Math.random() * 0.4 - 0.2;
+        grave.rotation.z = rotationAngle;
+        grave.rotation.y = rotationAngle;
+
+        text.rotation.z = rotationAngle;
+        text.rotation.y = rotationAngle;
+
+        house.add(graveGroup);
+    }
+});
+
+//Crosses
+
+const crossGeometry1 = new THREE.BoxGeometry(0.1, 1, 0.05);
+const crossGeometry2 = new THREE.BoxGeometry(0.4, 0.1, 0.05);
+
+for (let i = 0; i < 30; i++) {
+    const cross = new THREE.Group();
+
+    const cross1 = new THREE.Mesh(crossGeometry1, graveMatearial);
+    const cross2 = new THREE.Mesh(crossGeometry2, graveMatearial);
+    cross2.position.y = 0.3;
+    cross2.position.z = 0.001;
 
     let angle = Math.random() * 2 * Math.PI;
     const radius = 3 + Math.random() * 6;
     let x = Math.sin(angle) * radius;
     let z = Math.cos(angle) * radius;
-
-    grave.position.set(x, 0.3, z);
+    let y = Math.random() * 0.2 + 0.1;
+    
+    cross.position.set(x,  y, z);
 
     const rotationAngle = Math.random() * 0.4 - 0.2;
-    grave.rotation.z = rotationAngle;
-    grave.rotation.y = rotationAngle;
-    grave.rotation.x = rotationAngle;
-    house.add(grave);
+    cross.rotation.z = rotationAngle;
+    cross.rotation.y = rotationAngle;
+    cross.rotation.x = rotationAngle;
+
+
+    cross.add(cross1, cross2);
+
+    cross1.castShadow = true;
+    cross2.castShadow = true;
+
+    house.add(cross);
 }
 
 // Floor
-const floor = new THREE.Mesh(new THREE.PlaneGeometry(20, 20), new THREE.MeshStandardMaterial({ color: "#a9c388" }));
+const floor = new THREE.Mesh(
+    new THREE.PlaneGeometry(20, 20),
+    new THREE.MeshStandardMaterial({ map: grassColorTexture })
+);
 floor.rotation.x = -Math.PI * 0.5;
 floor.position.y = 0;
+
+floor.receiveShadow = true;
 scene.add(floor);
 
 /**
@@ -165,6 +331,23 @@ let doorLightHelper = new THREE.PointLightHelper(doorLight);
 doorLightHelper.visible = false;
 scene.add(doorLightHelper);
 scene.add(doorLight);
+
+//Ghost Light
+const ghostLight1 = new THREE.PointLight("#36ebf5", 8, 6);
+const ghostLight1Helper = new THREE.PointLightHelper(ghostLight1);
+ghostLight1Helper.visible = false;
+
+const ghostLight2 = new THREE.PointLight("#7d48e8", 8, 4);
+const ghostLight2Helper = new THREE.PointLightHelper(ghostLight2);
+ghostLight2Helper.visible = false;
+
+const ghostLight3 = new THREE.PointLight("#d7e01b", 8, 8);
+const ghostLight3Helper = new THREE.PointLightHelper(ghostLight3);
+ghostLight3Helper.visible = false;
+
+scene.add(ghostLight1, ghostLight1Helper);
+scene.add(ghostLight2, ghostLight2Helper);
+scene.add(ghostLight3, ghostLight3Helper);
 
 /**
  * Sizes
@@ -210,7 +393,46 @@ const renderer = new THREE.WebGLRenderer({
 });
 renderer.setSize(sizes.width, sizes.height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-renderer.setClearColor("#27446e");
+renderer.setClearColor("#132641");
+
+/**
+ * Shadows
+ */
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+moonLight.castShadow = true;
+doorLight.castShadow = true;
+ghostLight1.castShadow = true;
+ghostLight2.castShadow = true;
+ghostLight3.castShadow = true;
+
+moonLight.shadow.mapSize.width = 256;
+moonLight.shadow.mapSize.height = 256;
+moonLight.shadow.camera.far = 7;
+
+doorLight.shadow.mapSize.width = 256;
+doorLight.shadow.mapSize.height = 256;
+doorLight.shadow.camera.far = 7;
+
+ghostLight1.shadow.mapSize.width = 256;
+ghostLight1.shadow.mapSize.height = 256;
+ghostLight1.shadow.camera.far = 7;
+
+ghostLight2.shadow.mapSize.width = 256;
+ghostLight2.shadow.mapSize.height = 256;
+ghostLight2.shadow.camera.far = 7;
+
+ghostLight3.shadow.mapSize.width = 256;
+ghostLight3.shadow.mapSize.height = 256;
+ghostLight3.shadow.camera.far = 7;
+
+walls.castShadow = true;
+bush1.castShadow = true;
+bush2.castShadow = true;
+bush3.castShadow = true;
+bush4.castShadow = true;
+bush5.castShadow = true;
 
 /**
  * Animate
@@ -219,6 +441,22 @@ const clock = new THREE.Clock();
 
 const tick = () => {
     const elapsedTime = clock.getElapsedTime();
+
+    //Update ghosts
+    const ghostAngle1 = elapsedTime * 0.25;
+    ghostLight1.position.x = Math.cos(ghostAngle1) * (7 + Math.sin(elapsedTime * 0.7));
+    ghostLight1.position.z = Math.sin(ghostAngle1) * (6 + Math.sin(elapsedTime * 0.5));
+    ghostLight1.position.y = Math.cos(elapsedTime) + 1;
+
+    const ghostAngle2 = -elapsedTime * 0.2;
+    ghostLight2.position.x = Math.cos(ghostAngle2) * (4 + Math.sin(elapsedTime * 0.2));
+    ghostLight2.position.z = Math.sin(ghostAngle2) * (6 + Math.sin(elapsedTime * 0.5));
+    ghostLight2.position.y = Math.cos(elapsedTime) / 2 + 0.6;
+
+    const ghostAngle3 = elapsedTime * 0.4;
+    ghostLight3.position.x = Math.cos(ghostAngle3) * (7 + Math.sin(elapsedTime * 1.5));
+    ghostLight3.position.z = Math.sin(ghostAngle3) * (6 + Math.cos(elapsedTime * 0.5));
+    ghostLight3.position.y = Math.cos(elapsedTime) / 2 + 0.6;
 
     // Update controls
     controls.update();
