@@ -1,13 +1,14 @@
-# The Haunted house on three.js
+# A Sci-fi Haunted house 
 
-Using textures, lights, shadows. 
+Created, using the **three.js** library<br />
+Using textures, lights, shadows. <br />
 Random rendering of some objects on the scene.
 
 ## Live
 See live [Haunted House](https://kst-haunted-h.vercel.app/).
 
 ## Setup
-Download [Node.js](https://nodejs.org/en/download/).
+Download [Node.js](https://nodejs.org/en/download/).<br />
 Run this followed commands:
 
 ``` bash
