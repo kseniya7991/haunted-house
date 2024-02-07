@@ -1,4 +1,10 @@
-# Three.js Journey
+# The Haunted house on three.js
+
+Using textures, lights, shadows. 
+Random rendering of some objects on the scene.
+
+## Live
+See live [Haunted House](https://kst-haunted-h.vercel.app/).
 
 ## Setup
 Download [Node.js](https://nodejs.org/en/download/).
