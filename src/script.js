@@ -5,9 +5,20 @@ import GUI from "lil-gui";
 import { FontLoader } from "three/examples/jsm/loaders/FontLoader";
 import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry.js";
 
+import {
+    doorTexture,
+    panelTexture,
+    graveTexture,
+    grassTexture,
+    bushTexture,
+    warningTexture,
+    roofTexture,
+} from "./textures";
+
 /**
  * Base
  */
+
 // Debug
 const gui = new GUI();
 
@@ -20,77 +31,6 @@ const scene = new THREE.Scene();
 //Fog
 const fog = new THREE.Fog("#132641", 1, 16);
 scene.fog = fog;
-
-/**
- * Textures
- */
-const textureLoader = new THREE.TextureLoader();
-
-const doorColorTexture = textureLoader.load("/textures/door/color.jpg");
-doorColorTexture.colorSpace = THREE.SRGBColorSpace;
-const doorAlphaTexture = textureLoader.load("/textures/door/alpha.jpg");
-const doorAmbientOcclusionTexture = textureLoader.load("/textures/door/ambientOcclusion.jpg");
-const doorHeightTexture = textureLoader.load("/textures/door/height.jpg");
-const doorMetalnessTexture = textureLoader.load("/textures/door/metalness.jpg");
-const doorRoughnessTexture = textureLoader.load("/textures/door/roughness.jpg");
-const doorNormalTexture = textureLoader.load("/textures/door/normal.jpg");
-
-const sandstoneColorTexture = textureLoader.load("/textures/sandstone/color.jpg");
-sandstoneColorTexture.colorSpace = THREE.SRGBColorSpace;
-const sandstoneAmbientOcclusionTexture = textureLoader.load("/textures/sandstone/ambientOcclusion.jpg");
-const sandstoneRoughnessTexture = textureLoader.load("/textures/sandstone/roughness.jpg");
-const sandstoneNormalTexture = textureLoader.load("/textures/sandstone/normal.jpg");
-
-sandstoneColorTexture.repeat.set(2, 1.2);
-sandstoneAmbientOcclusionTexture.repeat.set(2, 1.2);
-sandstoneNormalTexture.repeat.set(2, 1.2);
-sandstoneRoughnessTexture.repeat.set(2, 1.2);
-
-sandstoneColorTexture.wrapS = THREE.RepeatWrapping;
-sandstoneColorTexture.wrapT = THREE.RepeatWrapping;
-sandstoneNormalTexture.wrapS = THREE.RepeatWrapping;
-sandstoneNormalTexture.wrapT = THREE.RepeatWrapping;
-sandstoneRoughnessTexture.wrapS = THREE.RepeatWrapping;
-sandstoneRoughnessTexture.wrapT = THREE.RepeatWrapping;
-sandstoneAmbientOcclusionTexture.wrapS = THREE.RepeatWrapping;
-sandstoneAmbientOcclusionTexture.wrapT = THREE.RepeatWrapping;
-
-const grassColorTexture = textureLoader.load("/textures/grass2/color.jpg");
-grassColorTexture.colorSpace = THREE.SRGBColorSpace;
-const grassAmbientOcclusionTexture = textureLoader.load("/textures/grass2/ambientOcclusion.jpg");
-const grassRoughnessTexture = textureLoader.load("/textures/grass2/roughness.jpg");
-const grassNormalTexture = textureLoader.load("/textures/grass2/normal.jpg");
-
-grassColorTexture.repeat.set(12, 12);
-grassAmbientOcclusionTexture.repeat.set(12, 12);
-grassNormalTexture.repeat.set(12, 12);
-grassRoughnessTexture.repeat.set(12, 12);
-
-grassColorTexture.wrapS = THREE.RepeatWrapping;
-grassColorTexture.wrapT = THREE.RepeatWrapping;
-grassNormalTexture.wrapS = THREE.RepeatWrapping;
-grassNormalTexture.wrapT = THREE.RepeatWrapping;
-grassRoughnessTexture.wrapS = THREE.RepeatWrapping;
-grassRoughnessTexture.wrapT = THREE.RepeatWrapping;
-grassAmbientOcclusionTexture.wrapS = THREE.RepeatWrapping;
-grassAmbientOcclusionTexture.wrapT = THREE.RepeatWrapping;
-
-const graveColorTexture = textureLoader.load("/textures/grave/color.jpg");
-graveColorTexture.colorSpace = THREE.SRGBColorSpace;
-const graveAmbientOcclusionTexture = textureLoader.load("/textures/grave/ambientOcclusion.jpg");
-const graveRoughnessTexture = textureLoader.load("/textures/grave/roughness.jpg");
-const graveNormalTexture = textureLoader.load("/textures/grave/normal.jpg");
-
-const windowColorTexture = textureLoader.load("/textures/window/color.jpg");
-windowColorTexture.colorSpace = THREE.SRGBColorSpace;
-const windowAlphaTexture = textureLoader.load("/textures/window/alpha.jpg");
-const windowAmbientOcclusionTexture = textureLoader.load("/textures/window/ambientOcclusion.jpg");
-const windowHeightTexture = textureLoader.load("/textures/window/height.jpg");
-const windowMetalnessTexture = textureLoader.load("/textures/window/metalness.jpg");
-const windowRoughnessTexture = textureLoader.load("/textures/window/roughness.jpg");
-const windowNormalTexture = textureLoader.load("/textures/window/normal.jpg");
-const windowBackground = textureLoader.load("/textures/window/windowBg.jpg");
-
 
 /**
  * House
@@ -107,20 +47,90 @@ const houseSize = {
 const walls = new THREE.Mesh(
     new THREE.BoxGeometry(houseSize.width, houseSize.height, houseSize.depth),
     new THREE.MeshStandardMaterial({
-        map: sandstoneColorTexture,
-        aoMap: sandstoneAmbientOcclusionTexture,
-        normalMap: sandstoneNormalTexture,
-        roughnessMap: sandstoneRoughnessTexture,
+        map: panelTexture.panelColorTexture,
+        aoMap: panelTexture.panelAmbientOcclusionTexture,
+        normalMap: panelTexture.panelNormalTexture,
+        roughnessMap: panelTexture.panelRoughnessTexture,
+        metalness: 0.7,
+        roughness: 0.8,
     })
 );
 walls.position.set(0, houseSize.height / 2, 0);
 house.add(walls);
 
+//Warnings
+
+let warningMaterial = new THREE.MeshStandardMaterial({
+    map: warningTexture.warningColorTexture,
+    transparent: true,
+    alphaMap: warningTexture.warningAlphaTexture,
+    aoMap: warningTexture.warningAmbientOcclusionTexture,
+    displacementMap: warningTexture.warningHeightTexture,
+    displacementScale: 0.01,
+    normalMap: warningTexture.warningNormalTexture,
+    metalnessMap: warningTexture.warningMetalnessTexture,
+    roughnessMap: warningTexture.warningRoughnessTexture,
+    metalness: 0.5,
+    roughness: 0.5,
+});
+let warningGeometry = new THREE.PlaneGeometry(0.7, 0.7, 100, 100);
+
+for (let i = 0; i < 10; i++) {
+    const warning = new THREE.Mesh(warningGeometry, warningMaterial);
+
+    let z = houseSize.depth / 2 + 0.001 * i;
+    let x = Math.random() * (houseSize.width - 0.7) + 0.35 - houseSize.width / 2;
+    let y = Math.random() * (houseSize.height - 0.8) + 0.35;
+    warning.rotation.z = Math.random() * Math.PI * 2;
+    warning.position.set(x, y, z);
+    house.add(warning);
+}
+
+for (let i = 0; i < 10; i++) {
+    const warning = new THREE.Mesh(warningGeometry, warningMaterial);
+
+    let z = Math.random() * (houseSize.depth - 0.8) + 0.4 - houseSize.depth / 2;
+    let x = -houseSize.width / 2 + 0.001 * i;
+    let y = Math.random() * (houseSize.height - 0.8) + 0.35;
+    warning.rotation.z = Math.random() * Math.PI * 2;
+    warning.rotation.y = -Math.PI * 0.5;
+    warning.position.set(x, y, z);
+    house.add(warning);
+}
+
+for (let i = 0; i < 10; i++) {
+    const warning = new THREE.Mesh(warningGeometry, warningMaterial);
+
+    let z = -houseSize.depth / 2 + 0.001 * i;
+    let x = Math.random() * (houseSize.width - 0.7) + 0.35 - houseSize.width / 2;
+    let y = Math.random() * (houseSize.height - 0.8) + 0.35;
+    warning.rotation.z = Math.random() * Math.PI * 2;
+    warning.rotation.y = -Math.PI;
+    warning.position.set(x, y, z);
+    house.add(warning);
+}
+
+for (let i = 0; i < 10; i++) {
+    const warning = new THREE.Mesh(warningGeometry, warningMaterial);
+
+    let z = Math.random() * (houseSize.depth - 0.8) + 0.4 - houseSize.depth / 2;
+    let x = houseSize.width / 2 + 0.001 * i;
+    let y = Math.random() * (houseSize.height - 0.8) + 0.35;
+    warning.rotation.z = Math.random() * Math.PI * 2;
+    warning.rotation.y = Math.PI * 0.5;
+    warning.position.set(x, y, z);
+    house.add(warning);
+}
+
 //Roof
 const roof = new THREE.Mesh(
     new THREE.ConeGeometry(3, 1.5, 4),
     new THREE.MeshStandardMaterial({
-        color: "#706556",
+        map: roofTexture.roofColorTexture,
+        transparent: true,
+        aoMap: roofTexture.oofAmbientOcclusionTexture,
+        normalMap: roofTexture.roofNormalTexture,
+        roughnessMap: roofTexture.roofRoughnessTexture,
     })
 );
 roof.position.set(0, 2.7, 0);
@@ -131,62 +141,35 @@ house.add(roof);
 const door = new THREE.Mesh(
     new THREE.PlaneGeometry(2, 2, 100, 100),
     new THREE.MeshStandardMaterial({
-        map: doorColorTexture,
+        map: doorTexture.doorColorTexture,
         transparent: true,
-        alphaMap: doorAlphaTexture,
-        aoMap: doorAmbientOcclusionTexture,
-        displacementMap: doorHeightTexture,
+        alphaMap: doorTexture.doorAlphaTexture,
+        aoMap: doorTexture.doorAmbientOcclusionTexture,
+        displacementMap: doorTexture.doorHeightTexture,
         displacementScale: 0.1,
-        normalMap: doorNormalTexture,
-        metalnessMap: doorMetalnessTexture,
-        roughnessMap: doorRoughnessTexture,
+        normalMap: doorTexture.doorNormalTexture,
+        metalnessMap: doorTexture.doorMetalnessTexture,
+        roughnessMap: doorTexture.doorRoughnessTexture,
     })
 );
 
-door.position.set(0, 1.5 / 2, houseSize.depth / 2);
+door.position.set(0, 1.5 / 2 + 0.2, houseSize.depth / 2 + 0.02);
 house.add(door);
-
-//Window
-const wallWindow = new THREE.Mesh(
-    new THREE.PlaneGeometry(2, 2, 100, 100),
-    new THREE.MeshStandardMaterial({
-        map: windowColorTexture,
-        transparent: true,
-        alphaMap: windowAlphaTexture,
-        aoMap: windowAmbientOcclusionTexture,
-        displacementMap: windowHeightTexture,
-        displacementScale: 0.1,
-        normalMap: windowNormalTexture,
-        metalnessMap: windowMetalnessTexture,
-        roughnessMap: windowRoughnessTexture,
-    })
-);
-
-const windowBg = new THREE.Mesh(
-    new THREE.PlaneGeometry(1.8, 1.2),
-    new THREE.MeshStandardMaterial({
-        map: windowBackground,
-        transparent: true,
-    })
-);
-
-windowBg.position.z = 0.01;
-wallWindow.position.z = 0.02;
-const windowGroup = new THREE.Group();
-scene.add(windowGroup);
-
-windowGroup.add(wallWindow, windowBg);
-
-windowGroup.position.set(houseSize.width / 2 + 0.01, 1, houseSize.depth / 2 - 2);
-windowGroup.rotation.y = Math.PI * 0.5;
-windowGroup.scale.set(0.5, 0.5, 0.5);
 
 //Bushes
 const bushes = new THREE.Group();
 house.add(bushes);
 
 const bushGeometry = new THREE.SphereGeometry(0.5, 32, 32);
-const bushMaterail = new THREE.MeshStandardMaterial({ color: "#37a616" });
+const bushMaterail = new THREE.MeshStandardMaterial({
+    map: bushTexture.bushColorTexture,
+    transparent: true,
+    aoMap: bushTexture.ushAmbientOcclusionTexture,
+    displacementMap: bushTexture.bushHeightTexture,
+    displacementScale: 0.08,
+    normalMap: bushTexture.bushNormalTexture,
+    roughnessMap: bushTexture.bushRoughnessTexture,
+});
 
 const bush1 = new THREE.Mesh(bushGeometry, bushMaterail);
 bush1.position.set(-1.2, 0.2, houseSize.depth / 2 + 0.5);
@@ -212,10 +195,10 @@ bushes.add(bush1, bush2, bush3, bush4, bush5);
 
 //Graves
 const graveMatearial = new THREE.MeshStandardMaterial({
-    map: graveColorTexture,
-    aoMap: graveAmbientOcclusionTexture,
-    roughnessMap: graveRoughnessTexture,
-    normalMap: graveNormalTexture,
+    map: graveTexture.graveColorTexture,
+    aoMap: graveTexture.graveAmbientOcclusionTexture,
+    roughnessMap: graveTexture.graveRoughnessTexture,
+    normalMap: graveTexture.graveNormalTexture,
 });
 const graveGeometry = new THREE.BoxGeometry(0.5, 0.8, 0.1);
 
@@ -278,14 +261,13 @@ for (let i = 0; i < 30; i++) {
     let x = Math.sin(angle) * radius;
     let z = Math.cos(angle) * radius;
     let y = Math.random() * 0.2 + 0.1;
-    
-    cross.position.set(x,  y, z);
+
+    cross.position.set(x, y, z);
 
     const rotationAngle = Math.random() * 0.4 - 0.2;
     cross.rotation.z = rotationAngle;
     cross.rotation.y = rotationAngle;
     cross.rotation.x = rotationAngle;
-
 
     cross.add(cross1, cross2);
 
@@ -298,7 +280,7 @@ for (let i = 0; i < 30; i++) {
 // Floor
 const floor = new THREE.Mesh(
     new THREE.PlaneGeometry(20, 20),
-    new THREE.MeshStandardMaterial({ map: grassColorTexture })
+    new THREE.MeshStandardMaterial({ map: grassTexture.grassColorTexture })
 );
 floor.rotation.x = -Math.PI * 0.5;
 floor.position.y = 0;
@@ -310,7 +292,7 @@ scene.add(floor);
  * Lights
  */
 // Ambient light
-const ambientLight = new THREE.AmbientLight("#b9d5ff", 0.1);
+const ambientLight = new THREE.AmbientLight("#b9d5ff", 0.2);
 gui.add(ambientLight, "intensity").min(0).max(1).step(0.001);
 scene.add(ambientLight);
 
